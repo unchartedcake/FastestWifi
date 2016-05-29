@@ -1,34 +1,23 @@
 package com.example.cupcake.shitapp;
 
-import android.content.SharedPreferences;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceScreen;
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
+import android.preference.PreferenceFragment;
 import android.os.Bundle;
-import android.util.Log;
 
-public class MainActivity extends PreferenceActivity {
-
+public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_main);
-        addPreferencesFromResource(R.xml.preferences);
-
+        setContentView(R.layout.activity_main);
+        getFragmentManager().beginTransaction()
+                .replace(R.id.llPF, new PrefsFragment()).commit();
     }
 
-    @Override
-    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
-        SharedPreferences sp = preference.getSharedPreferences();
-        boolean ON_OFF = sp.getBoolean("checkbox_preference", false);
-        Log.i("lenve", ON_OFF + "");
-        String text = sp.getString("edittext_preference", "");
-        Log.i("lenve", text + "");
-        String listtext = sp.getString("list_preference", "");
-        Log.i("lenve", listtext + "");
-        boolean next_screen = sp.getBoolean("next_screen_checkbox_preference", false);
-        Log.i("lenve", next_screen + "");
-        return true;
+    public static class PrefsFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.preferences);
+        }
     }
 }
