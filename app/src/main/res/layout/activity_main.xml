@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:weightSum="1">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -16,9 +17,12 @@
         android:id="@+id/tvWifi"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
+        android:gravity="center"
         android:padding="10dip"
-        android:text="你現在的Wifi是BigGGCafe" />
+        android:text="你現在的Wifi是BigGGCafe"
+        android:textSize="24dp"
+        android:layout_weight="0.14" />
+
 
     <LinearLayout
         android:id="@+id/llPF"

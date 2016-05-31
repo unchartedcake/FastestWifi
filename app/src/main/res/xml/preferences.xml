@@ -7,8 +7,7 @@
         android:title="自動執行" />
     <PreferenceScreen
         android:key="screen_preference"
-        android:summary="显示另一个偏好屏幕"
-        android:title="屏幕">
-    </PreferenceScreen>
+        android:summary="搜尋最快的WIFI並連結"
+        android:title="重新連線" />
 
 </PreferenceScreen>
