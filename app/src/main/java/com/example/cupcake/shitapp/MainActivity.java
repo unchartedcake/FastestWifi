@@ -1,17 +1,31 @@
 package com.example.cupcake.shitapp;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.preference.PreferenceFragment;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.List;
+import java.util.jar.Manifest;
 
 
 public class MainActivity extends Activity {
     private Toolbar toolbar;
+    private WifiManager wm;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,6 +35,19 @@ public class MainActivity extends Activity {
         initToolBar();
         getFragmentManager().beginTransaction()
                 .replace(R.id.llPF, new PrefsFragment()).commit();
+        wm=(WifiManager) getSystemService(Context.WIFI_SERVICE);
+        if(!wm.isWifiEnabled()){
+            wm.setWifiEnabled(true);
+        }
+        requestPermissions(new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION,android.Manifest.permission.ACCESS_FINE_LOCATION},0);
+        wm.startScan();
+        List<ScanResult> pList=wm.getScanResults();
+        String result="There are "+pList.size()+" wifi\n";
+        for(int i = 0 ; i < pList.size() ; i++){
+            result=result+pList.get(i).SSID+"\n";
+        }
+        TextView test=(TextView) findViewById(R.id.debug);
+        test.setText(result);
     }
 
     public void initToolBar() {
