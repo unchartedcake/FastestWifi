@@ -25,6 +25,7 @@ import java.util.jar.Manifest;
 public class MainActivity extends Activity {
     private Toolbar toolbar;
     private WifiManager wm;
+    private WifiInfo wi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +47,8 @@ public class MainActivity extends Activity {
         for(int i = 0 ; i < pList.size() ; i++){
             result=result+pList.get(i).SSID+"\n";
         }
+        wi=wm.getConnectionInfo();
+        result=result+"Current link speed= "+wi.getLinkSpeed()+"\n";
         TextView test=(TextView) findViewById(R.id.debug);
         test.setText(result);
     }
