@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
         String result="";
         wm.disconnect();
         int netId=0;
-        int speed=1-;
+        int speed=-1;
         String wifi="";
         List<WifiConfiguration> wcList=wm.getConfiguredNetworks();
         for(int i = 0 ; i < wcList.size();i++){
