@@ -34,7 +34,8 @@ public class MainActivity extends Activity {
     private WifiManager wm;
     private WifiInfo wi;
     final String TAG=MainActivity.class.getSimpleName();
-    static boolean flag;
+    static boolean flag,avalFlag;
+    static String result;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +56,6 @@ public class MainActivity extends Activity {
             wm.setWifiEnabled(true);
         }
 
-        String result="";
         HashMap<String,Integer> map=new HashMap<>();
         List<WifiConfiguration> wcList=wm.getConfiguredNetworks();
         for(int i = 0 ; i < wcList.size();i++){
@@ -71,6 +71,7 @@ public class MainActivity extends Activity {
         int netId=0;
         long maxTime=10000000;
         String wifi="";
+        String bssid="";
         for(int i=0;i<pList.size();i++){
             final String currSSID=pList.get(i).SSID;
             if(!map.containsKey(currSSID)){
@@ -85,6 +86,7 @@ public class MainActivity extends Activity {
             long elapsTime=10000;
             try {
                 flag=true;
+                avalFlag=false;
                 Date d=new Date();
                 long startTime=d.getTime();
                 Thread thread=new Thread(new Runnable() {
@@ -105,8 +107,10 @@ public class MainActivity extends Activity {
                                 size = size - byteRead;
                             }
                             flag=false;
+                            avalFlag=true;
                         }catch(Exception e){
                             Log.d(TAG,"Wifi:"+currSSID+";"+size+"bytes left"+";error="+e);
+                            result=result+currSSID+" failed->";
                             flag=false;
                         }
                     }
@@ -116,20 +120,21 @@ public class MainActivity extends Activity {
                 Date d2=new Date();
                 long finTime=d2.getTime();
                 elapsTime=finTime-startTime;
-                result=result+currSSID+":"+elapsTime+"\n";
+                result=result+currSSID+":"+elapsTime+";bssid="+pList.get(i).BSSID+"\n";
             }catch (Exception e){
                 Log.d(TAG,"error="+e);
             }
 
-            if(elapsTime < maxTime){
+            if(avalFlag && elapsTime < maxTime){
                 netId=currNid;
                 maxTime=elapsTime;
                 wifi=currSSID;
+                bssid=pList.get(i).BSSID;
             }
             wm.disableNetwork(currNid);
         }
         wm.enableNetwork(netId,true);
-        result=result+"Connect to "+wifi+"\n";
+        result=result+"Connect to "+bssid+":"+wifi+"\n";
         TextView test=(TextView) findViewById(R.id.debug);
         test.setText(result);
     }
