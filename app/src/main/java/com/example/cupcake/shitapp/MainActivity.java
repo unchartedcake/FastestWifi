@@ -13,12 +13,15 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.preference.PreferenceFragment;
 import android.os.Bundle;
+import android.support.v7.view.menu.ExpandedMenuView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.net.Socket;
 import java.util.List;
 import java.util.HashMap;
 import java.util.jar.Manifest;
@@ -30,6 +33,8 @@ public class MainActivity extends Activity {
     private Toolbar toolbar;
     private WifiManager wm;
     private WifiInfo wi;
+    final String TAG=MainActivity.class.getSimpleName();
+    static boolean flag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +45,11 @@ public class MainActivity extends Activity {
         initToolBar();
         getFragmentManager().beginTransaction()
                 .replace(R.id.llPF, new PrefsFragment()).commit();
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
         wm=(WifiManager) getSystemService(Context.WIFI_SERVICE);
         if(!wm.isWifiEnabled()){
             wm.setWifiEnabled(true);
@@ -59,10 +69,10 @@ public class MainActivity extends Activity {
         wm.startScan();
         List<ScanResult> pList=wm.getScanResults();
         int netId=0;
-        int speed=-1;
+        long maxTime=10000000;
         String wifi="";
         for(int i=0;i<pList.size();i++){
-            String currSSID=pList.get(i).SSID;
+            final String currSSID=pList.get(i).SSID;
             if(!map.containsKey(currSSID)){
                 continue;
             }
@@ -71,24 +81,59 @@ public class MainActivity extends Activity {
             if(!suc){
                 continue;
             }
-            try {
-                Thread.sleep(1000);
-            }catch (Exception e){
 
+            long elapsTime=10000;
+            try {
+                flag=true;
+                Date d=new Date();
+                long startTime=d.getTime();
+                Thread thread=new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        /*try {
+                            Thread.sleep(3000);
+                        }catch(Exception e){
+                            Log.d(TAG,"Wifi:"+currSSID+";Fail to sleep;error="+e);
+                        }*/
+                        wi=wm.getConnectionInfo();
+                        int size=1024*1024;
+                        try{
+                            Socket soc = new Socket("140.112.30.32", 8787);
+                            byte[] buf=new byte[2000];
+                            while(size > 0) {
+                                int byteRead = soc.getInputStream().read(buf, 0, 2000);
+                                size = size - byteRead;
+                            }
+                            flag=false;
+                        }catch(Exception e){
+                            Log.d(TAG,"Wifi:"+currSSID+";"+size+"bytes left"+";error="+e);
+                            flag=false;
+                        }
+                    }
+                });
+                thread.start();
+                while(flag){}
+                Date d2=new Date();
+                long finTime=d2.getTime();
+                elapsTime=finTime-startTime;
+                result=result+currSSID+":"+elapsTime+"\n";
+            }catch (Exception e){
+                Log.d(TAG,"error="+e);
             }
-            wi=wm.getConnectionInfo();
-            int currSpeed=wi.getLinkSpeed();
-            if(currSpeed > speed){
+
+            if(elapsTime < maxTime){
                 netId=currNid;
-                speed=currSpeed;
+                maxTime=elapsTime;
                 wifi=currSSID;
             }
+            wm.disableNetwork(currNid);
         }
         wm.enableNetwork(netId,true);
         result=result+"Connect to "+wifi+"\n";
         TextView test=(TextView) findViewById(R.id.debug);
         test.setText(result);
     }
+
     public void initToolBar() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Fastest Wifi");
