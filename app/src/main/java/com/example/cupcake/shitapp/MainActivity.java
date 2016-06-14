@@ -44,13 +44,14 @@ public class MainActivity extends Activity {
         requestPermissions(new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION,android.Manifest.permission.ACCESS_FINE_LOCATION},0);
         wm.startScan();
         List<ScanResult> pList=wm.getScanResults();
-        String result="There are "+pList.size()+" wifi\n";
-        for(int i = 0 ; i < pList.size() ; i++){
+        //String result="There are "+pList.size()+" wifi\n";
+        /*for(int i = 0 ; i < pList.size() ; i++){
             result=result+pList.get(i).SSID+"\n";
-        }
+        }*/
         //wi=wm.getConnectionInfo();
         //result=result+"Current link speed= "+wi.getLinkSpeed()+"\n";
-        wm.disconnect();
+        String result="";
+        //wm.disconnect();
         int netId=0;
         int speed=-1;
         String wifi="";
@@ -68,7 +69,6 @@ public class MainActivity extends Activity {
                 speed=currSpeed;
                 wifi=ssid;
             }
-            wm.disconnect();
         }
         wm.enableNetwork(netId,true);
         result=result+"Connect to "+wifi+"\n";
