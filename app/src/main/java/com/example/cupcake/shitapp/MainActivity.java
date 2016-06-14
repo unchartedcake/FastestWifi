@@ -90,13 +90,13 @@ public class MainActivity extends Activity {
                 Thread thread=new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        /*try {
+                        try {
                             Thread.sleep(3000);
                         }catch(Exception e){
                             Log.d(TAG,"Wifi:"+currSSID+";Fail to sleep;error="+e);
-                        }*/
+                        }
                         wi=wm.getConnectionInfo();
-                        int size=1024*1024;
+                        int size=20000;
                         try{
                             Socket soc = new Socket("140.112.30.32", 8787);
                             byte[] buf=new byte[2000];
