@@ -20,7 +20,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.List;
+import java.util.HashMap;
 import java.util.jar.Manifest;
+import java.lang.Thread;
+import java.util.Date;
 
 
 public class MainActivity extends Activity {
@@ -41,36 +44,44 @@ public class MainActivity extends Activity {
         if(!wm.isWifiEnabled()){
             wm.setWifiEnabled(true);
         }
-        requestPermissions(new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION,android.Manifest.permission.ACCESS_FINE_LOCATION},0);
-        wm.startScan();
-        List<ScanResult> pList=wm.getScanResults();
-        //String result="There are "+pList.size()+" wifi\n";
-        /*for(int i = 0 ; i < pList.size() ; i++){
-            result=result+pList.get(i).SSID+"\n";
-        }*/
-        //wi=wm.getConnectionInfo();
-        //result=result+"Current link speed= "+wi.getLinkSpeed()+"\n";
+
         String result="";
-        //wm.disconnect();
-        int netId=0;
-        int speed=-1;
-        String wifi="";
+        HashMap<String,Integer> map=new HashMap<>();
         List<WifiConfiguration> wcList=wm.getConfiguredNetworks();
         for(int i = 0 ; i < wcList.size();i++){
             WifiConfiguration w=wcList.get(i);
             int nid=w.networkId;
-            String ssid=w.SSID;
-            boolean suc=wm.enableNetwork(nid,true);
-            if(!suc) {
+            String ssid=w.SSID.substring(1,w.SSID.length()-1);
+            map.put(ssid,nid);
+        }
+
+        requestPermissions(new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION,android.Manifest.permission.ACCESS_FINE_LOCATION},0);
+        wm.startScan();
+        List<ScanResult> pList=wm.getScanResults();
+        int netId=0;
+        int speed=-1;
+        String wifi="";
+        for(int i=0;i<pList.size();i++){
+            String currSSID=pList.get(i).SSID;
+            if(!map.containsKey(currSSID)){
                 continue;
             }
-            wi = wm.getConnectionInfo();
-            int currSpeed = wi.getLinkSpeed();
-            result = result + "Wifi " + i + ":" + ssid + "\n" + "netId=" + nid + ",speed=" + currSpeed + "\n";
-            if (currSpeed > speed) {
-                netId = nid;
-                speed = currSpeed;
-                wifi = ssid;
+            int currNid=map.get(currSSID);
+            boolean suc=wm.enableNetwork(currNid,true);
+            if(!suc){
+                continue;
+            }
+            try {
+                Thread.sleep(1000);
+            }catch (Exception e){
+
+            }
+            wi=wm.getConnectionInfo();
+            int currSpeed=wi.getLinkSpeed();
+            if(currSpeed > speed){
+                netId=currNid;
+                speed=currSpeed;
+                wifi=currSSID;
             }
         }
         wm.enableNetwork(netId,true);
