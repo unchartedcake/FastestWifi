@@ -60,14 +60,17 @@ public class MainActivity extends Activity {
             WifiConfiguration w=wcList.get(i);
             int nid=w.networkId;
             String ssid=w.SSID;
-            wm.enableNetwork(nid,false);
-            wi=wm.getConnectionInfo();
-            int currSpeed=wi.getLinkSpeed();
-            result=result+"Wifi "+i+":"+ssid+"\n"+"netId="+nid+",speed="+currSpeed+"\n";
-            if(currSpeed > speed){
-                netId=nid;
-                speed=currSpeed;
-                wifi=ssid;
+            boolean suc=wm.enableNetwork(nid,true);
+            if(!suc) {
+                continue;
+            }
+            wi = wm.getConnectionInfo();
+            int currSpeed = wi.getLinkSpeed();
+            result = result + "Wifi " + i + ":" + ssid + "\n" + "netId=" + nid + ",speed=" + currSpeed + "\n";
+            if (currSpeed > speed) {
+                netId = nid;
+                speed = currSpeed;
+                wifi = ssid;
             }
         }
         wm.enableNetwork(netId,true);
